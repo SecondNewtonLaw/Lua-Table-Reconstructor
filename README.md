@@ -34,7 +34,7 @@ reconstruct_table(testtable)
 
 # Output
 ```lua
--- Table reconstructed using table_reconstructor by usrDottik (Oroginally made by MakeSureDudeDies)
+-- Table reconstructed using table_reconstructor by usrDottik (Originally made by MakeSureDudeDies)
 -- Reconstruction   began   @ 2024-04-14 19:58:42 - GMT 00:00
 -- Reconstruction completed @ 2024-04-14 19:58:42 - GMT 00:00
 -- Indexes Found inside of the Table (W/o  Nested Tables): 6
