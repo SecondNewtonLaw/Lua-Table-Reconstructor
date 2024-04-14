@@ -1,35 +1,29 @@
---[[
-    Table Reconstructor - Original by MakeSureDudeDies (MSDD). Modified by Dottik.
-
-    A simple lua program to make a lua table into valid, runnable, lua code.
-]]
-
-local function tL(t)
-	if type(t) ~= "table" then
-		return 0
-	end
-	local a = 0
-	for _, _ in pairs(t) do
-		a = a + 1
-	end
-	return a
-end
-
-local function tL_nested(t)
-	if type(t) ~= "table" then
-		return 0
-	end
-	local a = 0
-	for _, v in pairs(t) do
-		if type(v) == "table" then
-			a = a + tL_nested(v)
-		end
-		a = a + 1 -- Even if it was a table, we still count the table index itself as a value, not just its subvalues!
-	end
-	return a
-end
-
 local function reconstruct_table(t_)
+	local function tL(t)
+		if type(t) ~= "table" then
+			return 0
+		end
+		local a = 0
+		for _, _ in pairs(t) do
+			a = a + 1
+		end
+		return a
+	end
+
+	local function tL_nested(t)
+		if type(t) ~= "table" then
+			return 0
+		end
+		local a = 0
+		for _, v in pairs(t) do
+			if type(v) == "table" then
+				a = a + tL_nested(v)
+			end
+			a = a + 1 -- Even if it was a table, we still count the table index itself as a value, not just its subvalues!
+		end
+		return a
+	end
+
 	if type(t_) ~= "table" then
 		return string.format("-- Given object is not a table, rather a %s. Cannot reconstruct.", type(t_))
 	end
@@ -47,9 +41,15 @@ local function reconstruct_table(t_)
 
 		for idx, val in pairs(t) do
 			local idxType = type(val)
+			if type(idx) == "number" then
+				idx = idx
+			else
+				idx = string.format('"%s"', string.gsub(string.gsub(tostring(idx), "'", "'"), '"', '\\"'))
+			end
+
 			if idxType == "boolean" then
 				tableConstruct = string.format(
-					'%s%s["%s"] = %s',
+					"%s%s[%s] = %s",
 					tableConstruct,
 					string.rep("\t", childDepth),
 					tostring(idx),
@@ -63,25 +63,27 @@ local function reconstruct_table(t_)
 						v = "0 / 0"
 					elseif string.match(tostring(v), "inf") then
 						v = "math.huge"
+					elseif tostring(v) == tostring(math.pi) then
+						v = "math.pi"
 					end
 				end
 
 				if idxType == "string" then
-					v = string.format('"%s"', v)
+					v = string.format('"%s"', string.gsub(string.gsub(v, "'", "'"), '"', '\\"'))
 				end
 
 				tableConstruct =
-					string.format('%s%s["%s"] = %s', tableConstruct, string.rep("\t", childDepth), tostring(idx), v)
+					string.format("%s%s[%s] = %s", tableConstruct, string.rep("\t", childDepth), tostring(idx), v)
 			elseif idxType == "table" then
 				local r = inner__reconstruct_table(val, true, childDepth + 1)
 				tableConstruct =
-					string.format('%s%s["%s"] = {\n%s', tableConstruct, string.rep("\t", childDepth), tostring(idx), r)
+					string.format("%s%s[%s] = {\n%s", tableConstruct, string.rep("\t", childDepth), tostring(idx), r)
 			elseif idxType == "nil" then
 				tableConstruct =
-					string.format('%s%s["%s"] = nil', tableConstruct, string.rep("\t", childDepth), tostring(idx))
+					string.format("%s%s[%s] = nil", tableConstruct, string.rep("\t", childDepth), tostring(idx))
 			elseif idxType == "userdata" then
 				tableConstruct = string.format(
-					'%s%s["%s"] = "UserData. Cannot represent."',
+					'%s%s[%s] = "UserData. Cannot represent."',
 					string.rep("\t", childDepth),
 					tableConstruct,
 					tostring(idx)
@@ -109,3 +111,5 @@ local function reconstruct_table(t_)
 
 	return string.format("%s%s", welcomeMessage, reconstruction)
 end
+
+return reconstruct_table
