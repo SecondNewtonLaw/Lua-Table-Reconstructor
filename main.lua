@@ -96,7 +96,7 @@ local function reconstruct_table(t_)
 		end
 	end
 	local welcomeMessage = [[
--- Table reconstructed using table_reconstructor by usrDottik (Idea by MakeSureDudeDies)
+-- Table reconstructed using table_reconstructor by usrDottik (Originally made by MakeSureDudeDies)
 -- Reconstruction   began   @ %s - GMT 00:00
 -- Reconstruction completed @ %s - GMT 00:00
 -- Indexes Found inside of the Table (W/o  Nested Tables): %d
